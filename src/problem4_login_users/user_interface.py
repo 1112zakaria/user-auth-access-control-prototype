@@ -1,5 +1,7 @@
 import getpass
 import http.client
+import requests
+import pprint
 
 
 class UserInterfaceState:
@@ -23,7 +25,9 @@ class UserInterface:
     TODO: add logout function?
     """
     def __init__(self):
-        self.server_connection = http.client.HTTPSConnection("localhost", 4000)
+        self.host = 'localhost'
+        self.port = 4000
+        self.auth_endpoint = '/signin'
         pass
     
     def display_UI(self):
@@ -55,9 +59,11 @@ class UserInterface:
         print(header)
 
         # Get user credentials
-        self.get_user_credentials()
+        credentials = self.get_user_credentials()
+        payload = {'username': credentials[0], 'password': credentials[1]}
         # Send credentials to the server
-        self.server_connection.request("POST", "/signin")
+        response = requests.post(f'https://{self.host}:{self.port}{self.auth_endpoint}', data=payload, verify=False)
+        pprint.pprint(response.text)
 
 
         # Based on result, either display user info or re-request credentials
