@@ -62,7 +62,7 @@ class UserInterface:
         credentials = self.get_user_credentials()
         payload = {'username': credentials[0], 'password': credentials[1]}
         # Send credentials to the server
-        response = requests.post(f'https://{self.host}:{self.port}{self.auth_endpoint}', data=payload, verify=False)
+        response = requests.post(f'https://{self.host}:{self.port}{self.auth_endpoint}', json=payload, verify=False)
         pprint.pprint(response.text)
 
 
