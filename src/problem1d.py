@@ -171,39 +171,7 @@ def _is_time_between(begin_time, end_time):
         return check_time >= begin_time or check_time <= end_time
 
 
-        
-    
-    
-
-# PERMISSIONS = {
-#     RoleEnum.CLIENT: {
-#         Resource.ACCOUNT_BALANCE: Access.VIEW,
-#         Resource.INVESTMENT_PORTFOLIO: Access.VIEW,
-#         Resource.FINANCIAL_ADVISOR_CONTACT_DETAILS: Access.VIEW,
-#     },
-#     RoleEnum.PREMIUM_CLIENT: {
-#         Resource.INVESTMENT_PORTFOLIO: Access.MODIFY,
-#         Resource.FINANCIAL_ADVISOR_CONTACT_DETAILS: Access.VIEW,
-#         Resource.INVESTMENT_ANALYST_CONTACT_DETAILS: Access.NO,
-#         Resource.MONEY_MARKET_INSTRUMENTS: Access.NO,
-#         Resource.PRIVATE_CONSUMER_INSTRUMENTS: Access.NO,
-#     },
-#     RoleEnum.EMPLOYEE: {},
-#     RoleEnum.ELEVATED_EMPLOYEE: {},
-#     RoleEnum.FINANCIAL_PLANNER: {},
-#     RoleEnum.INVESTMENT_ANALYST: {},
-#     RoleEnum.FINANCIAL_ADVISOR: {}
-# }
-
-def get_teller_access():
-    now = datetime.datetime.now()
-    print(now)
-
-def get_permissions(role: RoleEnum, resource: Resource) -> Access:
-    return PERMISSIONS[role][resource]
-
 if __name__ == "__main__":
-    #print(PERMISSIONS[RoleEnum.CLIENT][Resource.PRIVATE_CONSUMER_INSTRUMENTS])
     r = Role()
     c = Client()
     p = PremiumClient()
