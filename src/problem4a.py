@@ -1,8 +1,6 @@
 import getpass
 import requests
 import pprint
-import signal
-import sys
 from flask import Flask, request
 from threading import Thread
 import time
