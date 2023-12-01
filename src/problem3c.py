@@ -118,22 +118,14 @@ def check_user_id_match(username: str, password: str) -> PasswordCheckResult:
 
 def perform_proactive_password_check(username: str, password: str) -> 'list[PasswordCheckResult]':
     errors: list[PasswordCheckResult] = []
+    password_check_functions = [
+        check_character_length, check_special_characters, check_weak_common_passwords, check_common_numbers
+    ]
 
-    result = check_character_length(password)
-    if result != PasswordCheckResult.SUCCESS:
-        errors += result
-    
-    result = check_special_characters(password)
-    if result != PasswordCheckResult.SUCCESS:
-        errors += result
-    
-    result = check_weak_common_passwords(password)
-    if result != PasswordCheckResult.SUCCESS:
-        errors += result
-    
-    result = check_common_numbers(password)
-    if result != PasswordCheckResult.SUCCESS:
-        errors += result
+    for password_check_function in password_check_functions:
+        result = password_check_function(password)
+        if result != PasswordCheckResult.SUCCESS:
+            errors += result
 
     result = check_user_id_match(username, password)
     if result != PasswordCheckResult.SUCCESS:
