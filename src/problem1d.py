@@ -1,5 +1,6 @@
 from enum import Enum, auto
 from datetime import datetime, time
+import json
 
 READ_ACCESS = 1
 WRITE_ACCESS = 2
@@ -17,15 +18,14 @@ class Resource(Enum):
     ACCOUNT_BALANCE                     = 1
     INVESTMENT_PORTFOLIO                = 2
     FINANCIAL_ADVISOR_CONTACT_DETAILS   = 3
-    FINANCIAL_PLANNER_CONTACT_DETAILS   = auto()
+    FINANCIAL_PLANNER_CONTACT_DETAILS   = 9
     INVESTMENT_ANALYST_CONTACT_DETAILS  = 4
     MONEY_MARKET_INSTRUMENTS            = 5
     PRIVATE_CONSUMER_INSTRUMENTS        = 6
     DERIVATIVES_TRADING                 = 7
     INTEREST_INSTRUMENTS                = 8
-    CLIENT_INFORMATION                  = auto()
-    TELLER_SYSTEM_ACCESS                = auto()
-
+    CLIENT_INFORMATION                  = 10
+    TELLER_SYSTEM_ACCESS                = 11
 
 
 class Access(Enum):
@@ -37,7 +37,7 @@ class Access(Enum):
 # Assume no access if not defined
 class DefaultRole():
     def __init__(self):
-        self.permissions = {}
+        self.permissions: dict[Resource] = {}
         self.init_permissions()
     
     def init_permissions(self):
@@ -59,6 +59,12 @@ class DefaultRole():
     
     def __str__(self) -> str:
         return self.get_role_name()
+    
+    def get_json_permissions(self):
+        json_dict = {}
+        for resource in self.permissions:
+            json_dict[resource.value] = self.permissions[resource].value # access type, idk how to get typehint for this
+        return json.dumps(json_dict)
     
 
 class Client(DefaultRole):
