@@ -29,7 +29,6 @@ class User():
         return user
 
 
-
 def add_user(username: str, password: str, role: DefaultRole = DefaultRole()) -> bool:
     # check username doesn't exist
     if retrieve_user(username):
@@ -49,19 +48,22 @@ def add_user(username: str, password: str, role: DefaultRole = DefaultRole()) ->
 
     return True
 
-def retrieve_user(username: str) -> User:
-    # find user's entry
-    user_entry: str = None
-    user: User = None
+def retrieve_user_entry(username: str) -> str:
     with open(PASSWORD_FILE, 'r') as f:
         entries = f.read().splitlines()
 
         for entry in entries:
             if username in entry:
-                user_entry = entry
-                break
+                return entry
     f.close()
+    return None
 
+def retrieve_user(username: str) -> User:
+    # find user's entry
+    user_entry: str = None
+    user: User = None
+    
+    user_entry = retrieve_user_entry(username)
     if not user_entry:
         return None
     
