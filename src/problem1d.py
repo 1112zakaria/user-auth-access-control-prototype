@@ -56,6 +56,10 @@ class DefaultRole():
     
     def get_role_name(self) -> str:
         return type(self).__name__
+    
+    def __str__(self) -> str:
+        return self.get_role_name()
+    
 
 class Client(DefaultRole):
     def __init__(self):
@@ -173,6 +177,26 @@ def _is_time_between(begin_time, end_time):
     else:
         return check_time >= begin_time or check_time <= end_time
 
+
+ROLE_LIST: list[DefaultRole] = [
+    DefaultRole,
+    Client,
+    PremiumClient,
+    FinancialPlanner,
+    FinancialAdvisor,
+    InvestmentAnalyst,
+    TechnicalSupport,
+    AuthorizedTechnicalSupport,
+    Teller
+]
+
+def get_role_from_str(role_str: str) -> DefaultRole:
+    role_dict = {}
+
+    for role in ROLE_LIST:
+        role_dict[role.__name__] = role
+    
+    return role_dict.get(role_str, DefaultRole)
 
 if __name__ == "__main__":
     r = DefaultRole()

@@ -9,20 +9,30 @@ PASSWORD_FILE = "passwd.txt"
 # TODO: make function to add and retrieve user
 
 class User():
-    def __init__(self, username: str) -> None:
+    def __init__(self, username: str, hashed_password: str = None, role: DefaultRole = DefaultRole()) -> None:
         self.username: str = username
-        self.role: DefaultRole = DefaultRole()
+        self.hashed_password = hashed_password
+        self.role: DefaultRole = role
     
     def set_role(self, role: DefaultRole):
         self.role = role
 
+    def __str__(self):
+        return f"User [{self.username}, {self.hashed_password}, {self.role}]"
 
-def check_user_exists(username: str) -> bool:
-    return False
+    @classmethod
+    def get_user_from_entry(cls, entry: str) -> 'User':
+        split_entry: list[str] = entry.split(SEPARATOR)
+        username, hashed_password, role_str = split_entry[0], split_entry[1], split_entry[2]
+        role = get_role_from_str(role_str)()
+        user: User = User(username, hashed_password, role)
+        return user
+
+
 
 def add_user(username: str, password: str, role: DefaultRole = DefaultRole()) -> bool:
     # check username doesn't exist
-    if check_user_exists(username):
+    if retrieve_user(username):
         return False
 
     # hash the password with a salt
@@ -39,8 +49,27 @@ def add_user(username: str, password: str, role: DefaultRole = DefaultRole()) ->
 
     return True
 
+def retrieve_user(username: str) -> User:
+    # find user's entry
+    user_entry: str = None
+    user: User = None
+    with open(PASSWORD_FILE, 'r') as f:
+        entries = f.read().splitlines()
 
+        for entry in entries:
+            if username in entry:
+                user_entry = entry
+                break
+    f.close()
+
+    if not user_entry:
+        return None
+    
+    user = User.get_user_from_entry(user_entry)
+    print(user)
+    return user
 
 
 if __name__ == "__main__":
     add_user('zak', '123', Client())
+    retrieve_user('zak')
