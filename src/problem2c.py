@@ -9,9 +9,9 @@ PASSWORD_FILE = "passwd.txt"
 # TODO: make function to add and retrieve user
 
 class User():
-    def __init__(self, username: str, hashed_password: str = None, role: DefaultRole = DefaultRole()) -> None:
+    def __init__(self, username: str, hashed_password: bytes = None, role: DefaultRole = DefaultRole()) -> None:
         self.username: str = username
-        self.hashed_password = hashed_password
+        self.hashed_password: bytes = hashed_password
         self.role: DefaultRole = role
     
     def set_role(self, role: DefaultRole):
@@ -23,7 +23,7 @@ class User():
     @classmethod
     def get_user_from_entry(cls, entry: str) -> 'User':
         split_entry: list[str] = entry.split(SEPARATOR)
-        username, hashed_password, role_str = split_entry[0], split_entry[1], split_entry[2]
+        username, hashed_password, role_str = split_entry[0], split_entry[1].encode('utf-8'), split_entry[2]
         role = get_role_from_str(role_str)()
         user: User = User(username, hashed_password, role)
         return user
