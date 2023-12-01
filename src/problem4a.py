@@ -8,8 +8,15 @@ from threading import Thread
 import time
 from multiprocessing import Process
 from problem4c import *
+import json
+import logging
+import urllib3
 
 # Problem 4 Login Users
+
+logging.getLogger("requests").setLevel(logging.ERROR)
+logging.getLogger("urllib3").setLevel(logging.ERROR)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # def signal_handler(sig, frame):
 #     server_process.terminate()
@@ -67,13 +74,23 @@ class UserInterface:
                     "-----------------------------------------"
         print(header)
 
-        # Get user credentials
-        credentials = self.get_user_credentials()
-        payload = {'username': credentials[0], 'password': credentials[1]}
-        # Send credentials to the server
-        response = requests.post(f'https://{self.host}:{self.port}{self.auth_endpoint}', json=payload, verify=False)
-        pprint.pprint(response.text)
+        valid_credentials = False
 
+        while not valid_credentials:
+            # Get user credentials
+            credentials = self.get_user_credentials()
+            payload = {'username': credentials[0], 'password': credentials[1]}
+            # Send credentials to the server
+            response = requests.post(f'https://{self.host}:{self.port}{self.auth_endpoint}', json=payload, verify=False)
+            #pprint.pprint(response.text)
+            response_json = json.loads(response.text)
+
+            if response_json[STATUS] == 'SUCCESS':
+                valid_credentials = True
+            else:
+                print('Invalid credentials. Try again.')
+
+        pprint.pprint(response_json)
         # Based on result, either display user info or re-request credentials
 
 
