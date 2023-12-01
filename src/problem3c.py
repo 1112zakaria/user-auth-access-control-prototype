@@ -16,7 +16,7 @@ MIN_PASSWORD_SIZE = 8
 SPECIAL_CHAR_SET = {'!','@','#','$','%','?','*'}
 WEAK_PASSWORDS_FILE = 'weak_passwords.txt'
 
-class PasswordCheckResult(Enum):
+class UserEnrollResult(Enum):
     SUCCESS                 = 'SUCCESS'
     TOO_FEW_CHARS           = f'Too few characters. Password must be at least {MIN_PASSWORD_SIZE} characters in length.'
     MISSING_SPECIAL_CHAR    = f'Password must include at least one special character from the set {SPECIAL_CHAR_SET}'
@@ -26,6 +26,7 @@ class PasswordCheckResult(Enum):
     COMMON_WEAK_PASSWORD    = 'Password is found to be a common weak password.'
     MATCHES_COMMON_NUMBER   = 'Password matches the format of calendar dates, license plate numbers, telephone numbers, or other common number.'
     MATCHES_USERID          = 'Password matches the user ID.'
+    USER_EXISTS             = 'User already exists.'
 
 
 
@@ -62,77 +63,84 @@ def get_user_credentials() -> 'tuple[str, int, bool]':
 ## SERVER
 def enrol_user_server():
     data = request.json
-    user_created = add_user(data['username'], data['password'])
+    username, password = data['username'], data['password']
+    errors: list[UserEnrollResult] = []
+    
+    errors = perform_proactive_password_check(username, password)
+    if errors != UserEnrollResult.SUCCESS:
+        return {STATUS: [error.value for error in errors]}
+
+    user_created = add_user(username, password)
     if not user_created:
         print("User exists")
-        return {STATUS: False}
-    return {STATUS: True}
+        return {STATUS: [UserEnrollResult.USER_EXISTS.value]}
+    return {STATUS: [UserEnrollResult.SUCCESS.value]}
 
 
-def check_character_length(password: str) -> PasswordCheckResult:
+def check_character_length(password: str) -> UserEnrollResult:
     if len(password) > MIN_PASSWORD_SIZE:
-        return PasswordCheckResult.SUCCESS
-    return PasswordCheckResult.TOO_FEW_CHARS
+        return UserEnrollResult.SUCCESS
+    return UserEnrollResult.TOO_FEW_CHARS
 
-def check_special_characters(password: str) -> PasswordCheckResult:
+def check_special_characters(password: str) -> UserEnrollResult:
     # check the following:
     # - 1 upper case
     # - 1 lower case
     # - 1 digit
     # - 1 special character from special char set
-    errors: list[PasswordCheckResult] = []
+    errors: list[UserEnrollResult] = []
     if not any(c for c in password if c.islower()):
-        errors += PasswordCheckResult.MISSING_LOWERCASE_CHAR
+        errors += UserEnrollResult.MISSING_LOWERCASE_CHAR
     if not any(c for c in password if c.isupper()):
-        errors += PasswordCheckResult.MISSING_UPPERCASE_CHAR
+        errors += UserEnrollResult.MISSING_UPPERCASE_CHAR
     if not any(c for c in password if c.isnumeric()):
-        errors += PasswordCheckResult.MISSING_NUMERICAL_DIGIT
+        errors += UserEnrollResult.MISSING_NUMERICAL_DIGIT
     if not any(c for c in password if c in SPECIAL_CHAR_SET):
-        errors += PasswordCheckResult.MISSING_SPECIAL_CHAR
+        errors += UserEnrollResult.MISSING_SPECIAL_CHAR
     
     if errors == []:
-        return PasswordCheckResult.SUCCESS
+        return UserEnrollResult.SUCCESS
     return errors
 
-def check_weak_common_passwords(password: str) -> PasswordCheckResult:
+def check_weak_common_passwords(password: str) -> UserEnrollResult:
     with open(WEAK_PASSWORDS_FILE, 'r') as f:
         weak_passwords = f.readlines()
         if password in weak_passwords:
-            return PasswordCheckResult.COMMON_WEAK_PASSWORD
+            return UserEnrollResult.COMMON_WEAK_PASSWORD
     f.close()
-    return PasswordCheckResult.SUCCESS
+    return UserEnrollResult.SUCCESS
 
-def check_common_numbers(password: str) -> PasswordCheckResult:
+def check_common_numbers(password: str) -> UserEnrollResult:
     contains_calendar_dates = re.search("[0-9][0-9][0-9][0-9](.|-|[ ]?)[0-9][0-9](.|-|[ ]?)[0-9][0-9]", password)
     contains_license_plate_number = re.search("[A-Za-z][A-Za-z][A-Za-z][A-Za-z](-|[ ]?)[0-9][0-9][0-9]", password)
     contains_telephone_number = re.search("[0-9][0-9][0-9](-|[ ]?)[0-9][0-9][0-9](-|[ ]?)[0-9][0-9][0-9][0-9]", password)
 
     if contains_calendar_dates or contains_license_plate_number or contains_telephone_number:
-        return PasswordCheckResult.MATCHES_COMMON_NUMBER
-    return PasswordCheckResult.SUCCESS
+        return UserEnrollResult.MATCHES_COMMON_NUMBER
+    return UserEnrollResult.SUCCESS
 
-def check_user_id_match(username: str, password: str) -> PasswordCheckResult:
+def check_user_id_match(username: str, password: str) -> UserEnrollResult:
     if username.lower() == password.lower():
-        return PasswordCheckResult.MATCHES_USERID
-    return PasswordCheckResult.SUCCESS
+        return UserEnrollResult.MATCHES_USERID
+    return UserEnrollResult.SUCCESS
 
-def perform_proactive_password_check(username: str, password: str) -> 'list[PasswordCheckResult]':
-    errors: list[PasswordCheckResult] = []
+def perform_proactive_password_check(username: str, password: str) -> 'list[UserEnrollResult]':
+    errors: list[UserEnrollResult] = []
     password_check_functions = [
         check_character_length, check_special_characters, check_weak_common_passwords, check_common_numbers
     ]
 
     for password_check_function in password_check_functions:
         result = password_check_function(password)
-        if result != PasswordCheckResult.SUCCESS:
+        if result != UserEnrollResult.SUCCESS:
             errors += result
 
     result = check_user_id_match(username, password)
-    if result != PasswordCheckResult.SUCCESS:
+    if result != UserEnrollResult.SUCCESS:
         errors += result
 
     if errors == []:
-        return PasswordCheckResult.SUCCESS
+        return UserEnrollResult.SUCCESS
     return errors
 
 
