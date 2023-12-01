@@ -35,7 +35,7 @@ class Access(Enum):
 
 # FIXME: use inheritance?
 # Assume no access if not defined
-class Role():
+class DefaultRole():
     def __init__(self):
         self.permissions = {}
         self.init_permissions()
@@ -53,8 +53,11 @@ class Role():
     
     def get_permissions(self):
         return self.permissions
+    
+    def get_role_name(self) -> str:
+        return type(self).__name__
 
-class Client(Role):
+class Client(DefaultRole):
     def __init__(self):
         super().__init__()
     
@@ -77,7 +80,7 @@ class PremiumClient(Client):
         for resource in resources:
             self.set_resource_access(resource, Access.VIEW)
 
-class FinvestEmployee(Role):
+class FinvestEmployee(DefaultRole):
 
     def __init__(self):
         super().__init__()
@@ -119,7 +122,7 @@ class InvestmentAnalyst(PortfolioModifierAndPrivateInstrumentViewer):
         self.set_resource_access(Resource.DERIVATIVES_TRADING, Access.VIEW)
         self.set_resource_access(Resource.INTEREST_INSTRUMENTS, Access.VIEW)
 
-class TechnicalSupport(Role):
+class TechnicalSupport(DefaultRole):
     def __init__(self):
         super().__init__()
     
@@ -140,7 +143,7 @@ class AuthorizedTechnicalSupport(AuthorizedTechnicalSupportBase2):
     def init_permissions(self):
         super().init_permissions()
 
-class Teller(Role):
+class Teller(DefaultRole):
     def __init__(self):
         super().__init__()
 
@@ -153,7 +156,7 @@ class Teller(Role):
         else:
             self.permissions[Resource.TELLER_SYSTEM_ACCESS] = Access.NO
 
-class ComplianceOfficer(Role):
+class ComplianceOfficer(DefaultRole):
     def __init__(self):
         super().__init__()
     
@@ -172,7 +175,7 @@ def _is_time_between(begin_time, end_time):
 
 
 if __name__ == "__main__":
-    r = Role()
+    r = DefaultRole()
     c = Client()
     p = PremiumClient()
     print(r.permissions)
