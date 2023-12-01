@@ -184,7 +184,7 @@ def _is_time_between(begin_time, end_time):
         return check_time >= begin_time or check_time <= end_time
 
 
-ROLE_LIST: list[DefaultRole] = [
+ROLE_LIST: 'list[DefaultRole]' = [
     DefaultRole,
     Client,
     PremiumClient,

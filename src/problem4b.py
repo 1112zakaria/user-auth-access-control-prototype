@@ -12,7 +12,7 @@ def verify_password(input_password: str, user: User) -> bool:
     result: bool = bcrypt.checkpw(encoded_password, user.hashed_password)
     return result
 
-def login_user(username: str, password: str) -> tuple[User, LoginResult]:
+def login_user(username: str, password: str) -> 'tuple[User, LoginResult]':
     # fetch user record from password file
     user: User = retrieve_user(username)
     if not user:
