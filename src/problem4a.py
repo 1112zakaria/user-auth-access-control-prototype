@@ -5,12 +5,17 @@ import signal
 import sys
 from flask import Flask, request
 from threading import Thread
+import time
+from multiprocessing import Process
+from problem4c import *
 
 # Problem 4 Login Users
 
-class UserInterfaceState:
-    pass
+# def signal_handler(sig, frame):
+#     server_process.terminate()
+#     sys.exit(0)
 
+#signal.signal(signal.SIGINT, signal_handler)
 
 class UserInterface:
     """
@@ -69,7 +74,6 @@ class UserInterface:
         response = requests.post(f'https://{self.host}:{self.port}{self.auth_endpoint}', json=payload, verify=False)
         pprint.pprint(response.text)
 
-
         # Based on result, either display user info or re-request credentials
 
 
@@ -79,7 +83,6 @@ class AuthServer:
         self.app = Flask(__name__)
         
         self.add_endpoints()
-        signal.signal(signal.SIGINT, self.cleanup)
     
     def add_endpoints(self):
         self.app.add_url_rule('/signin', 'signin', self.signin, methods=['POST'])
@@ -91,10 +94,10 @@ class AuthServer:
 
     def signin(self):
         data = request.json
-        return f"Hello user {data['username']}"
-
-    def cleanup(self, sig, frame):
-        sys.exit(0)
+        response = enforce_access_control(data['username'], data['password'])
+        print(response)
+        return response.encode()
+        #return f"Hello user {data['username']}"
 
     def run(self):
         self.listen()
@@ -104,6 +107,14 @@ if __name__ == "__main__":
     auth_server = AuthServer()
     UI = UserInterface()
 
-    auth_server.run()
+    # server_thread = Thread(target=auth_server.run)
+    # server_thread.start()
+    server_process = Process(target=auth_server.run)
+    server_process.start()
+
+    time.sleep(1)
     UI.run()
+
+    server_process.join()
+    # server_thread.join()
         

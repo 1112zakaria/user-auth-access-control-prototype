@@ -1,8 +1,3 @@
-import http.server
-import ssl
-import signal
-import sys
-from flask import Flask, request
 from problem4a import AuthServer
 
 if __name__ == "__main__":
