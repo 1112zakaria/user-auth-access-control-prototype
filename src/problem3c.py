@@ -8,6 +8,7 @@ from flask import Flask, request
 from problem4a import *
 
 # Problem 3c - Implement the enrolment mechanism and proactive password checker
+STATUS = 'status'
 
 ## CLIENT
 def enrol_user_interface():
@@ -19,10 +20,14 @@ def enrol_user_interface():
             print("Passwords do not match. Try again.")
             continue
     
-    # send credentials to server
-    payload = {'username': username, 'password': password}
-    response = requests.post(f'https://{HOST}:{PORT}{ENROLL_ENDPOINT}', json=payload, verify=False)
-    pprint.pprint(response.text)
+        # send credentials to server
+        payload = {'username': username, 'password': password}
+        response = requests.post(f'https://{HOST}:{PORT}{ENROLL_ENDPOINT}', json=payload, verify=False)
+        response_json = json.loads(response.text)
+        if response_json[STATUS] == False:
+            print("User already exists. Try again.")
+            valid_credentials = False
+    print(f"Successfully enrolled user {username}")
 
 
 def get_user_credentials() -> 'tuple[str, int, bool]':
@@ -41,8 +46,8 @@ def enrol_user_server():
     user_created = add_user(data['username'], data['password'])
     if not user_created:
         print("User exists")
-        return {'status': False}
-    return {'status': True}
+        return {STATUS: False}
+    return {STATUS: True}
 
 
 if __name__ == "__main__":
