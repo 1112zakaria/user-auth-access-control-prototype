@@ -63,7 +63,7 @@ class DefaultRole():
     def get_json_permissions(self):
         json_dict = {}
         for resource in self.permissions:
-            json_dict[resource.value] = self.permissions[resource].value # access type, idk how to get typehint for this
+            json_dict[resource.name] = self.permissions[resource].name # access type, idk how to get typehint for this
         return json.dumps(json_dict)
     
 

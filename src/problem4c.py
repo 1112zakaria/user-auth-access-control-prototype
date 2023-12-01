@@ -12,7 +12,7 @@ class AccessControl():
     def __init__(self, user: User, result: LoginResult):
         self.payload: dict = {}
 
-        self.payload[STATUS] = result.value
+        self.payload[STATUS] = result.name
         if user and result == LoginResult.SUCCESS:
             self.payload[USER_ID] = user.username
             self.payload[ROLE] = user.role.get_role_name()
@@ -20,11 +20,6 @@ class AccessControl():
     
     def encode(self):
         return json.dumps(self.payload)
-    
-    @classmethod
-    def decode(cls, encoded_data: str):
-        pass
-
         
 
 def enforce_access_control(username: str, password: str):
@@ -34,5 +29,6 @@ def enforce_access_control(username: str, password: str):
     return access_control
 
 if __name__ == "__main__":
-    enforce_access_control('zak', '123')
-    enforce_access_control('zak', 'abc')
+    a = enforce_access_control('zak', '123')
+    b = enforce_access_control('zak', 'abc')
+
