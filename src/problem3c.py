@@ -1,11 +1,12 @@
 import getpass
 import pprint
+import json
 
 import requests
 from problem2c import add_user
 from flask import Flask, request
 
-from problem4a import *
+import problem4a
 
 # Problem 3c - Implement the enrolment mechanism and proactive password checker
 STATUS = 'status'
@@ -22,7 +23,7 @@ def enrol_user_interface():
     
         # send credentials to server
         payload = {'username': username, 'password': password}
-        response = requests.post(f'https://{HOST}:{PORT}{ENROLL_ENDPOINT}', json=payload, verify=False)
+        response = requests.post(f'https://{problem4a.HOST}:{problem4a.PORT}{problem4a.ENROLL_ENDPOINT}', json=payload, verify=False)
         response_json = json.loads(response.text)
         if response_json[STATUS] == False:
             print("User already exists. Try again.")

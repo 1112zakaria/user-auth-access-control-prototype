@@ -5,8 +5,8 @@ from flask import Flask, request
 from threading import Thread
 import time
 from multiprocessing import Process
-from problem3c import enrol_user_server
 from problem4c import *
+import problem3c
 import json
 import logging
 import urllib3
@@ -107,7 +107,7 @@ class AuthServer:
     
     def add_endpoints(self):
         self.app.add_url_rule('/signin', 'signin', self.signin, methods=['POST'])
-        self.app.add_url_rule('/enroll', 'enroll', enrol_user_server, methods=['POST'])
+        self.app.add_url_rule('/enroll', 'enroll', problem3c.enrol_user_server, methods=['POST'])
 
     def listen(self):
         print(f"Serving at {self.server_address}...")
