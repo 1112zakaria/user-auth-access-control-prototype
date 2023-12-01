@@ -55,7 +55,10 @@ def retrieve_user_entry(username: str) -> str:
             entries = f.read().splitlines()
 
             for entry in entries:
-                if username in entry:
+                # FIXME: potential bug in code... if i create username zakariaismail
+                # and then attempt to create username zakaria, it will think there's duplicate
+                entry_username, _, _ = entry.split(SEPARATOR)
+                if username == entry_username:
                     return entry
     f.close()
     return None
