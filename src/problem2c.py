@@ -1,5 +1,6 @@
 from problem1d import *
 import bcrypt
+import os
 
 # Implement the password file
 # store the username, hashed password, salt, role
@@ -50,11 +51,12 @@ def add_user(username: str, password: str, role: DefaultRole = DefaultRole()) ->
 
 def retrieve_user_entry(username: str) -> str:
     with open(PASSWORD_FILE, 'r') as f:
-        entries = f.read().splitlines()
+        if os.stat(PASSWORD_FILE).st_size > 0:
+            entries = f.read().splitlines()
 
-        for entry in entries:
-            if username in entry:
-                return entry
+            for entry in entries:
+                if username in entry:
+                    return entry
     f.close()
     return None
 
