@@ -2,6 +2,7 @@ from enum import Enum, auto
 import getpass
 import pprint
 import json
+import re
 
 import requests
 from problem2c import add_user
@@ -13,6 +14,7 @@ import problem4a
 STATUS = 'status'
 MIN_PASSWORD_SIZE = 8
 SPECIAL_CHAR_SET = {'!','@','#','$','%','?','*'}
+WEAK_PASSWORDS_FILE = 'weak_passwords.txt'
 
 class PasswordCheckResult(Enum):
     SUCCESS                 = 'SUCCESS'
@@ -93,18 +95,53 @@ def check_special_characters(password: str) -> PasswordCheckResult:
     return errors
 
 def check_weak_common_passwords(password: str) -> PasswordCheckResult:
-    pass
+    with open(WEAK_PASSWORDS_FILE, 'r') as f:
+        weak_passwords = f.readlines()
+        if password in weak_passwords:
+            return PasswordCheckResult.COMMON_WEAK_PASSWORD
+    f.close()
+    return PasswordCheckResult.SUCCESS
 
 def check_common_numbers(password: str) -> PasswordCheckResult:
-    pass
+    contains_calendar_dates = re.search("[0-9][0-9][0-9][0-9](.|-|[ ]?)[0-9][0-9](.|-|[ ]?)[0-9][0-9]", password)
+    contains_license_plate_number = re.search("[A-Za-z][A-Za-z][A-Za-z][A-Za-z](-|[ ]?)[0-9][0-9][0-9]", password)
+    contains_telephone_number = re.search("[0-9][0-9][0-9](-|[ ]?)[0-9][0-9][0-9](-|[ ]?)[0-9][0-9][0-9][0-9]", password)
+
+    if contains_calendar_dates or contains_license_plate_number or contains_telephone_number:
+        return PasswordCheckResult.MATCHES_COMMON_NUMBER
+    return PasswordCheckResult.SUCCESS
 
 def check_user_id_match(username: str, password: str) -> PasswordCheckResult:
-    pass
+    if username.lower() == password.lower():
+        return PasswordCheckResult.MATCHES_USERID
+    return PasswordCheckResult.SUCCESS
 
-def perform_proactive_password_check(password: str):
-    pass
+def perform_proactive_password_check(username: str, password: str) -> 'list[PasswordCheckResult]':
+    errors: list[PasswordCheckResult] = []
 
+    result = check_character_length(password)
+    if result != PasswordCheckResult.SUCCESS:
+        errors += result
+    
+    result = check_special_characters(password)
+    if result != PasswordCheckResult.SUCCESS:
+        errors += result
+    
+    result = check_weak_common_passwords(password)
+    if result != PasswordCheckResult.SUCCESS:
+        errors += result
+    
+    result = check_common_numbers(password)
+    if result != PasswordCheckResult.SUCCESS:
+        errors += result
 
+    result = check_user_id_match(username, password)
+    if result != PasswordCheckResult.SUCCESS:
+        errors += result
+
+    if errors == []:
+        return PasswordCheckResult.SUCCESS
+    return errors
 
 
 if __name__ == "__main__":
