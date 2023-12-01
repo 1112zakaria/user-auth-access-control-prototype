@@ -12,16 +12,16 @@ def verify_password(input_password: str, user: User) -> bool:
     result: bool = bcrypt.checkpw(encoded_password, user.hashed_password)
     return result
 
-def login_user(username: str, password: str) -> LoginResult:
+def login_user(username: str, password: str) -> tuple[User, LoginResult]:
     # fetch user record from password file
     user: User = retrieve_user(username)
     if not user:
         # username does not exist
-        return LoginResult.INVALID_CREDENTIALS
+        return None, LoginResult.INVALID_CREDENTIALS
     
     if not verify_password(password, user):
-        return LoginResult.INVALID_CREDENTIALS
-    return LoginResult.SUCCESS
+        return None, LoginResult.INVALID_CREDENTIALS
+    return user, LoginResult.SUCCESS
 
 if __name__ == "__main__":
     print(login_user('zak', '123'))
