@@ -5,8 +5,9 @@ import json
 import re
 
 import requests
-from problem2c import add_user
+from problem2c import add_user, retrieve_user
 from flask import Flask, request
+import pdb
 
 import problem4a
 
@@ -44,10 +45,19 @@ def enrol_user_interface():
         payload = {'username': username, 'password': password}
         response = requests.post(f'https://{problem4a.HOST}:{problem4a.PORT}{problem4a.ENROLL_ENDPOINT}', json=payload, verify=False)
         response_json = json.loads(response.text)
-        if response_json[STATUS] == False:
-            print("User already exists. Try again.")
-            valid_credentials = False
-    print(f"Successfully enrolled user {username}")
+        if response_json[STATUS] == UserEnrollResult.SUCCESS.value:
+            print(f"Successfully enrolled user {username}.")
+            valid_credentials = True
+            break
+
+        errors: list[str] = response_json[STATUS]
+        print("The following errors occurred: ")
+        for error in errors:
+            print(f"\t- {error}")
+        print("Try again.")
+        valid_credentials = False
+
+    
 
 
 def get_user_credentials() -> 'tuple[str, int, bool]':
@@ -67,14 +77,16 @@ def enrol_user_server():
     errors: list[UserEnrollResult] = []
     
     errors = perform_proactive_password_check(username, password)
-    if errors != UserEnrollResult.SUCCESS:
+
+    if retrieve_user(username):
+       errors += [UserEnrollResult.USER_EXISTS]
+     
+    if UserEnrollResult.SUCCESS not in errors:
         return {STATUS: [error.value for error in errors]}
 
-    user_created = add_user(username, password)
-    if not user_created:
-        print("User exists")
-        return {STATUS: [UserEnrollResult.USER_EXISTS.value]}
-    return {STATUS: [UserEnrollResult.SUCCESS.value]}
+    # if user does not exist and no errors, attempt to add the user
+    add_user(username, password)
+    return {STATUS: UserEnrollResult.SUCCESS.value}
 
 
 def check_character_length(password: str) -> UserEnrollResult:
@@ -90,13 +102,13 @@ def check_special_characters(password: str) -> UserEnrollResult:
     # - 1 special character from special char set
     errors: list[UserEnrollResult] = []
     if not any(c for c in password if c.islower()):
-        errors += UserEnrollResult.MISSING_LOWERCASE_CHAR
+        errors += [UserEnrollResult.MISSING_LOWERCASE_CHAR]
     if not any(c for c in password if c.isupper()):
-        errors += UserEnrollResult.MISSING_UPPERCASE_CHAR
+        errors += [UserEnrollResult.MISSING_UPPERCASE_CHAR]
     if not any(c for c in password if c.isnumeric()):
-        errors += UserEnrollResult.MISSING_NUMERICAL_DIGIT
+        errors += [UserEnrollResult.MISSING_NUMERICAL_DIGIT]
     if not any(c for c in password if c in SPECIAL_CHAR_SET):
-        errors += UserEnrollResult.MISSING_SPECIAL_CHAR
+        errors += [UserEnrollResult.MISSING_SPECIAL_CHAR]
     
     if errors == []:
         return UserEnrollResult.SUCCESS
@@ -133,14 +145,17 @@ def perform_proactive_password_check(username: str, password: str) -> 'list[User
     for password_check_function in password_check_functions:
         result = password_check_function(password)
         if result != UserEnrollResult.SUCCESS:
-            errors += result
+            if type(result) is list: 
+                errors += result
+            elif isinstance(result, UserEnrollResult): 
+                errors.append(result)
 
     result = check_user_id_match(username, password)
     if result != UserEnrollResult.SUCCESS:
-        errors += result
+        errors += [result]
 
     if errors == []:
-        return UserEnrollResult.SUCCESS
+        return [UserEnrollResult.SUCCESS]
     return errors
 
 
