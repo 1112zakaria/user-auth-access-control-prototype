@@ -1,3 +1,6 @@
+# PLEASE DO NOT MODIFY THIS FILE
+# It is critical to the application's role and permission mechanism and may affect system security.
+
 from enum import Enum, auto
 from datetime import datetime, time
 import json
@@ -165,6 +168,7 @@ class Teller(DefaultRole):
             self.permissions[Resource.TELLER_SYSTEM_ACCESS] = Access.VIEW
         else:
             self.permissions[Resource.TELLER_SYSTEM_ACCESS] = Access.NO
+        return self.permissions
 
 class ComplianceOfficer(DefaultRole):
     def __init__(self):
