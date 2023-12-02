@@ -1,3 +1,6 @@
+# PLEASE DO NOT MODIFY THIS FILE
+# It is critical to the application's role and permission mechanism and may affect system security.
+
 from enum import Enum, auto
 from datetime import datetime, time
 import json
