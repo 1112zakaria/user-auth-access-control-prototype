@@ -2,3 +2,4 @@
 __pycache__
 *.pcap
 passwd.txt
+test_passwd.txt
