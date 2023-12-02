@@ -18,8 +18,13 @@ class User():
     def set_role(self, role: DefaultRole):
         self.role = role
 
+
     def __str__(self):
         return f"User [{self.username}, {self.hashed_password}, {self.role}]"
+    
+    def get_entry(self):
+        return self.username + SEPARATOR + self.hashed_password.decode('utf-8') + SEPARATOR + self.role.get_role_name() + '\n'
+
 
     @classmethod
     def get_user_from_entry(cls, entry: str) -> 'User':
@@ -75,6 +80,18 @@ def retrieve_user(username: str) -> User:
     user = User.get_user_from_entry(user_entry)
     print(user)
     return user
+
+def set_password_file(filename: str):
+    global PASSWORD_FILE
+    PASSWORD_FILE = filename
+    with open(PASSWORD_FILE, 'a') as f:
+        pass
+    f.close()
+
+def clear_password_file():
+    with open(PASSWORD_FILE, 'w') as f:
+        pass
+    f.close()
 
 
 if __name__ == "__main__":
