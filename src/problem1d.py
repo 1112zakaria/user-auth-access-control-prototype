@@ -193,7 +193,8 @@ ROLE_LIST: 'list[DefaultRole]' = [
     InvestmentAnalyst,
     TechnicalSupport,
     AuthorizedTechnicalSupport,
-    Teller
+    Teller,
+    ComplianceOfficer
 ]
 
 def get_role_from_str(role_str: str) -> DefaultRole:
