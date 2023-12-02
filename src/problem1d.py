@@ -168,6 +168,7 @@ class Teller(DefaultRole):
             self.permissions[Resource.TELLER_SYSTEM_ACCESS] = Access.VIEW
         else:
             self.permissions[Resource.TELLER_SYSTEM_ACCESS] = Access.NO
+        return self.permissions
 
 class ComplianceOfficer(DefaultRole):
     def __init__(self):

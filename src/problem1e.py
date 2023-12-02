@@ -2,10 +2,11 @@ import unittest
 from datetime import datetime, time
 from unittest import mock
 
-from src.problem1d import (AuthorizedTechnicalSupport, Client,
+from problem1d import (AuthorizedTechnicalSupport, Client,
                            ComplianceOfficer, DefaultRole, FinancialAdvisor,
                            FinancialPlanner, InvestmentAnalyst, PremiumClient,
-                           TechnicalSupport, Teller, get_role_from_str)
+                           TechnicalSupport, Teller, get_role_from_str, Resource,
+                           Access)
 
 
 class TestAccessControl(unittest.TestCase):
@@ -60,11 +61,12 @@ class TestAccessControl(unittest.TestCase):
             Resource.FINANCIAL_ADVISOR_CONTACT_DETAILS: Access.NO,
             # Add other resources and their expected access values
         }
+        expected_permissions = dict()
         self.assertEqual(self.default_role.get_permissions(), expected_permissions)
 
     # Write similar test methods for other roles
 
-    @mock.patch("src.problem1d.datetime")
+    @mock.patch("problem1d.datetime")
     def test_teller_role_permissions_during_working_hours(self, mock_datetime):
         mock_datetime.utcnow.return_value.time.return_value = time(10, 0)
         expected_permissions = {
@@ -73,7 +75,7 @@ class TestAccessControl(unittest.TestCase):
         }
         self.assertEqual(self.teller_role.get_permissions(), expected_permissions)
 
-    @mock.patch("src.problem1d.datetime")
+    @mock.patch("problem1d.datetime")
     def test_teller_role_permissions_outside_working_hours(self, mock_datetime):
         mock_datetime.utcnow.return_value.time.return_value = time(18, 0)
         expected_permissions = {
