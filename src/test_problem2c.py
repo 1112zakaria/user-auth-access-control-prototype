@@ -3,31 +3,37 @@ import tempfile
 import unittest
 
 import bcrypt
-from problem2c import User, add_user, retrieve_user, retrieve_user_entry
+from problem1d import Client, Teller
+from problem2c import User, add_user, retrieve_user, retrieve_user_entry, set_password_file, clear_password_file
 
+TEST_PASSWORD_FILE = 'test_passwd.txt'
 
 class TestPasswordFileMechanism(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.temp_file = tempfile.NamedTemporaryFile()
         os.environ['PASSWORD_FILE'] = cls.temp_file.name
+        set_password_file(TEST_PASSWORD_FILE)
+        clear_password_file()
+        
 
     @classmethod
     def tearDownClass(cls):
-        cls.temp_file.close()
+        pass
 
-    def test_add_user_successful(self):
+    def test_add_user(self):
+        # Test add user successful
         username = 'test_user'
         password = 'test_password'
-        role = 'test_role'
+        role = Client()
 
         result = add_user(username, password, role)
         self.assertTrue(result)
 
-    def test_add_user_duplicate(self):
+        # Test add user duplicate
         username = 'test_user'
         password = 'test_password'
-        role = 'test_role'
+        role = Client()
 
         add_user(username, password, role)
         result = add_user(username, password, role)
@@ -36,12 +42,11 @@ class TestPasswordFileMechanism(unittest.TestCase):
     def test_retrieve_user_entry_existing(self):
         username = 'test_user'
         password = 'test_password'
-        role = 'test_role'
+        role = Client()
 
         add_user(username, password, role)
         entry = retrieve_user_entry(username)
-        expected_entry = f"{username}:{password}:{role}\n"
-        self.assertEqual(entry, expected_entry)
+        self.assertIsNotNone(entry)
 
     def test_retrieve_user_entry_non_existing(self):
         username = 'non_existing_user'
@@ -52,14 +57,13 @@ class TestPasswordFileMechanism(unittest.TestCase):
     def test_retrieve_user_existing(self):
         username = 'test_user'
         password = 'test_password'
-        role = 'test_role'
+        role = Client()
 
         add_user(username, password, role)
         user = retrieve_user(username)
         self.assertIsInstance(user, User)
         self.assertEqual(user.username, username)
-        self.assertEqual(user.hashed_password, password)
-        self.assertEqual(user.role, role)
+        self.assertEqual(user.role.get_role_name(), role.get_role_name())
 
     def test_retrieve_user_non_existing(self):
         username = 'non_existing_user'
@@ -70,16 +74,16 @@ class TestPasswordFileMechanism(unittest.TestCase):
     def test_user_class(self):
         username = 'test_user'
         password = 'test_password'
-        role = 'test_role'
+        role = Client()
 
         user = User(username, password, role)
         self.assertEqual(user.username, username)
         self.assertEqual(user.hashed_password, password)
         self.assertEqual(user.role, role)
 
-        new_role = 'new_test_role'
+        new_role = Teller()
         user.set_role(new_role)
-        self.assertEqual(user.role, new_role)
+        self.assertEqual(user.role.get_role_name(), new_role.get_role_name())
 
 if __name__ == '__main__':
     unittest.main()

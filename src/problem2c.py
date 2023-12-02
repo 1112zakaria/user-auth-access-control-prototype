@@ -81,6 +81,18 @@ def retrieve_user(username: str) -> User:
     print(user)
     return user
 
+def set_password_file(filename: str):
+    global PASSWORD_FILE
+    PASSWORD_FILE = filename
+    with open(PASSWORD_FILE, 'a') as f:
+        pass
+    f.close()
+
+def clear_password_file():
+    with open(PASSWORD_FILE, 'w') as f:
+        pass
+    f.close()
+
 
 if __name__ == "__main__":
     add_user('zak', '123', Client())
