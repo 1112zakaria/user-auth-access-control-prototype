@@ -6,6 +6,7 @@ from threading import Thread
 import time
 from multiprocessing import Process
 from problem4c import *
+import problem3c
 import json
 import logging
 import urllib3
@@ -15,6 +16,11 @@ import urllib3
 logging.getLogger("requests").setLevel(logging.ERROR)
 logging.getLogger("urllib3").setLevel(logging.ERROR)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+HOST = 'localhost'
+PORT = 4000
+AUTH_ENDPOINT = '/signin'
+ENROLL_ENDPOINT = '/enroll'
 
 # def signal_handler(sig, frame):
 #     server_process.terminate()
@@ -39,9 +45,9 @@ class UserInterface:
     TODO: add logout function?
     """
     def __init__(self):
-        self.host = 'localhost'
-        self.port = 4000
-        self.auth_endpoint = '/signin'
+        self.host = HOST
+        self.port = PORT
+        self.auth_endpoint = AUTH_ENDPOINT
         pass
     
     def display_UI(self):
@@ -101,6 +107,7 @@ class AuthServer:
     
     def add_endpoints(self):
         self.app.add_url_rule('/signin', 'signin', self.signin, methods=['POST'])
+        self.app.add_url_rule('/enroll', 'enroll', problem3c.enrol_user_server, methods=['POST'])
 
     def listen(self):
         print(f"Serving at {self.server_address}...")
@@ -112,7 +119,6 @@ class AuthServer:
         response = enforce_access_control(data['username'], data['password'])
         print(response)
         return response.encode()
-        #return f"Hello user {data['username']}"
 
     def run(self):
         self.listen()
