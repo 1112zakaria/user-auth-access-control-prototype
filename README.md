@@ -25,3 +25,11 @@ Then, run the client using:
 ```
 python3 client.py
 ```
+# Test Instructions
+
+To run the tests, execute the following command:
+
+```
+python -m unittest discover src/tests
+```
+
