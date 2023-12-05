@@ -16,14 +16,24 @@ pip3 install flask
 
 This system consists of a client and a server application.
 
-First, run the server using:
+Go to the `src` directory using:
+```
+cd src
+```
+
+Then, run the server in one window using:
 ```
 python3 auth_server.py
 ```
 
-Then, run the client using:
+Then, run the login client in another window using:
 ```
-python3 client.py
+python3 login.py
+```
+
+To run the enroll client, run the following in another window:
+```
+python3 enroll.py
 ```
 # Test Instructions
 
